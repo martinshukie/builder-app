@@ -1,14 +1,26 @@
 const CACHE_NAME = "builder-app-cache-v1";
-const URLS_TO_CACHE = ["/", "/index.html", "/manifest.json"];
 
+// Pre-cache core files
+const URLS_TO_CACHE = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/favicon.ico",
+  "/logo192.png",
+  "/logo512.png"
+];
+
+// Install
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(URLS_TO_CACHE);
     })
   );
+  self.skipWaiting();
 });
 
+// Activate
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -17,28 +29,28 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
-          return null;
         })
       )
     )
   );
+  self.clients.claim();
 });
 
+// Network-first fetch with dynamic caching
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return (
-        response ||
-        fetch(event.request).catch(() => caches.match("/index.html"))
-      );
-    })
+    fetch(event.request)
+      .then((response) => {
+        const cloned = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, cloned);
+        });
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cached) => {
+          return cached || caches.match("/index.html");
+        });
+      })
   );
 });
-
-if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/service-worker.js").catch(() => {});
-  });
-}
-import { precacheAndRoute } from 'workbox-precaching';
-precacheAndRoute(self.__WB_MANIFEST);
