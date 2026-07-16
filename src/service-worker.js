@@ -59,4 +59,19 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
+self.addEventListener("sync", (event) => {
+  if (event.tag === "sync-queued-actions") {
+    event.waitUntil(processQueuedActions());
+  }
+});
+
+async function processQueuedActions() {
+  // Example: read from IndexedDB and send to API
+  // Placeholder – you can define your own logic here
+}
+if ("serviceWorker" in navigator && "SyncManager" in window) {
+  navigator.serviceWorker.ready.then((registration) => {
+    registration.sync.register("sync-queued-actions");
+  });
+}
 
