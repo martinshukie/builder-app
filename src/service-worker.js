@@ -40,3 +40,5 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     navigator.serviceWorker.register("/service-worker.js").catch(() => {});
   });
 }
+import { precacheAndRoute } from 'workbox-precaching';
+precacheAndRoute(self.__WB_MANIFEST);
