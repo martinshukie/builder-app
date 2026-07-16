@@ -1,0 +1,10 @@
+# Ignore root-level build artifacts that may confuse Vercel detection
+index.html
+App.js
+index.js
+manifest.json
+service-worker.js
+
+# Node modules and build output
+node_modules/
+build/
