@@ -17,3 +17,10 @@ root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.ready.then((registration) => {
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    }
+  });
+}
